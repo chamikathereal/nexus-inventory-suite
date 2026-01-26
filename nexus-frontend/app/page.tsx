@@ -1,13 +1,23 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { getProducts, getStats, Product, CategoryStat } from '../app/lib/api';
+// Ensure this path matches where you put api.ts (e.g. './lib/api' or '@/lib/api')
+import { getProducts, getStats, createProduct, Product, CategoryStat } from './lib/api';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts';
-import { AlertCircle, CheckCircle, XCircle, Package } from 'lucide-react';
+import { AlertCircle, CheckCircle, Package, Plus, X } from 'lucide-react';
 
 export default function Dashboard() {
   const [products, setProducts] = useState<Product[]>([]);
   const [stats, setStats] = useState<CategoryStat[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // State for Modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newProduct, setNewProduct] = useState({
+    name: '',
+    category: 'Electronics',
+    price: 0,
+    quantity: 0
+  });
 
   useEffect(() => {
     fetchData();
@@ -25,6 +35,21 @@ export default function Dashboard() {
     }
   };
 
+  const handleCreateProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      // @ts-expect-error Status is handled by backend logic
+      await createProduct(newProduct);
+      setIsModalOpen(false);
+      setNewProduct({ name: '', category: 'Electronics', price: 0, quantity: 0 });
+      fetchData(); // Refresh data to show new product & updated stats
+      alert("Product added successfully!");
+    } catch (error) {
+      console.error("Failed to create product", error);
+      alert("Error creating product");
+    }
+  };
+
   // Helper for "Enterprise" Status Colors
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -35,7 +60,6 @@ export default function Dashboard() {
     }
   };
 
-  // Helper for Priority Indicators
   const getPriorityIcon = (priority: string) => {
     if (priority === 'CRITICAL') return <AlertCircle className="w-5 h-5 text-red-600" />;
     if (priority === 'HIGH') return <AlertCircle className="w-5 h-5 text-orange-500" />;
@@ -45,15 +69,23 @@ export default function Dashboard() {
   if (loading) return <div className="p-10 text-center">Loading Nexus Suite...</div>;
 
   return (
-    <div className="min-h-screen bg-slate-50 p-8 font-sans">
-      <header className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-2">
-          <Package className="w-8 h-8 text-blue-600" /> Nexus Inventory Suite
-        </h1>
-        <p className="text-slate-500 mt-1">Warehouse Overview & Health</p>
+    <div className="min-h-screen bg-slate-50 p-8 font-sans relative">
+      <header className="mb-8 flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-2">
+            <Package className="w-8 h-8 text-blue-600" /> Nexus Inventory Suite
+          </h1>
+          <p className="text-slate-500 mt-1">Warehouse Overview & Health</p>
+        </div>
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors shadow-sm"
+        >
+          <Plus className="w-4 h-4" /> Add Product
+        </button>
       </header>
 
-      {/* KPI Section: Charts */}
+      {/* KPI Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
           <h2 className="text-lg font-semibold mb-4 text-slate-800">Inventory Distribution</h2>
@@ -70,7 +102,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Quick Stats or Second Chart could go here */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex flex-col justify-center items-center">
             <div className="text-center">
                 <span className="text-5xl font-bold text-slate-800">{products.length}</span>
@@ -79,7 +110,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* The Table: "Inventory Overview" */}
+      {/* Product Table */}
       <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
         <div className="p-6 border-b border-slate-100">
           <h2 className="text-lg font-semibold text-slate-800">Product List</h2>
@@ -118,6 +149,82 @@ export default function Dashboard() {
           </table>
         </div>
       </div>
+
+      {/* ADD PRODUCT MODAL */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+              <h3 className="font-semibold text-slate-800">Add New Product</h3>
+              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleCreateProduct} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Product Name</label>
+                <input 
+                  type="text" 
+                  required
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  placeholder="e.g. Wireless Mouse"
+                  value={newProduct.name}
+                  onChange={e => setNewProduct({...newProduct, name: e.target.value})}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
+                <select 
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  value={newProduct.category}
+                  onChange={e => setNewProduct({...newProduct, category: e.target.value})}
+                >
+                  <option value="Electronics">Electronics</option>
+                  <option value="Accessories">Accessories</option>
+                  <option value="Appliances">Appliances</option>
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Price ($)</label>
+                  <input 
+                    type="number" 
+                    required
+                    min="0"
+                    step="0.01"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                    value={newProduct.price}
+                    onChange={e => setNewProduct({...newProduct, price: parseFloat(e.target.value)})}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Quantity</label>
+                  <input 
+                    type="number" 
+                    required
+                    min="0"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                    value={newProduct.quantity}
+                    onChange={e => setNewProduct({...newProduct, quantity: parseInt(e.target.value)})}
+                  />
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <button 
+                  type="submit"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition-colors"
+                >
+                  Confirm Product
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
