@@ -161,7 +161,7 @@ export default function Dashboard() {
               </button>
             </div>
             
-            <form onSubmit={handleCreateProduct} className="p-6 space-y-4">
+            <form onSubmit={handleCreateProduct} className="p-6 space-y-4 text-slate-600">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Product Name</label>
                 <input 
