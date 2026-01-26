@@ -28,7 +28,11 @@ public class ProductService {
             }
         } else if (product.getQuantity() < 10) {
             product.setStatus(io.github.chamikathereal.nexus_backend.enums.ProductStatus.LOW_STOCK);
+        } else {
+            // ★ YOU MISS THIS PART: Handle the "Good" case!
+            product.setStatus(io.github.chamikathereal.nexus_backend.enums.ProductStatus.IN_STOCK);
         }
+
         return repository.save(product);
     }
 
