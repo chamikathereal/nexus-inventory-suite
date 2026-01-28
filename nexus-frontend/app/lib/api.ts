@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-// Match the Backend DTO exactly
 export interface Product {
   id: number;
   name: string;
@@ -8,7 +7,7 @@ export interface Product {
   price: number;
   quantity: number;
   status: 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK' | 'DISCONTINUED';
-  priority: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW'; // The calculated field
+  priority: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW'; 
 }
 
 export interface CategoryStat {
@@ -17,7 +16,7 @@ export interface CategoryStat {
 }
 
 const api = axios.create({
-  baseURL: 'http://localhost:8080/api/products', // Your Spring Boot URL
+  baseURL: 'http://localhost:8080/api/products',
 });
 
 export const getProducts = async () => {
@@ -26,7 +25,7 @@ export const getProducts = async () => {
 };
 
 export const getStats = async () => {
-  const response = await api.get<CategoryStat[]>('/stats'); // The summarization endpoint
+  const response = await api.get<CategoryStat[]>('/stats');
   return response.data;
 };
 

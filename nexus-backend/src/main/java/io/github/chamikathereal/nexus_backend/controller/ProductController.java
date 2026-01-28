@@ -31,7 +31,7 @@ public class ProductController {
             map.put("price", product.getPrice());
             map.put("quantity", product.getQuantity());
             map.put("status", product.getStatus());
-            // Injecting the calculated priority [cite: 14]
+            // Injecting the calculated priority
             map.put("priority", service.calculatePriority(product));
             return map;
         }).collect(Collectors.toList());
@@ -44,7 +44,7 @@ public class ProductController {
         return service.saveProduct(product);
     }
 
-    @GetMapping("/stats") // For the charts [cite: 16]
+    @GetMapping("/stats")
     public List<Map<String, Object>> getStats() {
         return service.getCategoryStats();
     }

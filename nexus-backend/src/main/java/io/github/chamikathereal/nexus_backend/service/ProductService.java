@@ -20,16 +20,18 @@ public class ProductService {
     }
 
     public Product saveProduct(Product product) {
-        // Auto-update status based on quantity (Business Logic)
+        // Auto update status based on quantity
         if (product.getQuantity() == 0) {
             // Keep DISCONTINUED if explicitly set, otherwise OUT_OF_STOCK
             if (product.getStatus() != io.github.chamikathereal.nexus_backend.enums.ProductStatus.DISCONTINUED) {
+                //OUT_OF_STOCK
                 product.setStatus(io.github.chamikathereal.nexus_backend.enums.ProductStatus.OUT_OF_STOCK);
             }
         } else if (product.getQuantity() < 10) {
+            //LOW_STOCK
             product.setStatus(io.github.chamikathereal.nexus_backend.enums.ProductStatus.LOW_STOCK);
         } else {
-            // ★ YOU MISS THIS PART: Handle the "Good" case!
+            // IN_STOCK
             product.setStatus(io.github.chamikathereal.nexus_backend.enums.ProductStatus.IN_STOCK);
         }
 

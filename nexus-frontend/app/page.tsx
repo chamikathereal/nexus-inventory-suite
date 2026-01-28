@@ -1,6 +1,5 @@
 'use client';
 import { useEffect, useState } from 'react';
-// Ensure this path matches where you put api.ts (e.g. './lib/api' or '@/lib/api')
 import { getProducts, getStats, createProduct, Product, CategoryStat } from './lib/api';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts';
 import { AlertCircle, CheckCircle, Package, Plus, X } from 'lucide-react';
@@ -10,7 +9,6 @@ export default function Dashboard() {
   const [stats, setStats] = useState<CategoryStat[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // State for Modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newProduct, setNewProduct] = useState({
     name: '',
@@ -38,7 +36,6 @@ export default function Dashboard() {
   const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // @ts-expect-error Status is handled by backend logic
       await createProduct(newProduct);
       setIsModalOpen(false);
       setNewProduct({ name: '', category: 'Electronics', price: 0, quantity: 0 });
